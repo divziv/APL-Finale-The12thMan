@@ -96,7 +96,7 @@ export interface StadiumData {
   averageScanSpeed: number;
 }
 
-export type UserRole = 'admin' | 'ops' | 'security' | 'volunteer' | 'manager' | 'sponsor';
+export type UserRole = 'admin' | 'ops' | 'security' | 'volunteer' | 'manager' | 'sponsor' | 'fan';
 
 export interface BookedTicket {
   id: string;

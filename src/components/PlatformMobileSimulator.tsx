@@ -33,6 +33,7 @@ export default function PlatformMobileSimulator({
   const [userStand, setUserStand] = useState<string>('South Stand (Gate 4)');
   const [fanRouteActive, setFanRouteActive] = useState<boolean>(false);
   const [accessibilityRequired, setAccessibilityRequired] = useState<boolean>(false);
+  const [pollVoted, setPollVoted] = useState<string | null>(null);
 
   /**
    * Dispatches incident from Android Guard device
@@ -296,6 +297,32 @@ export default function PlatformMobileSimulator({
                       {/* Interactive mock QR */}
                       <QrCode className="w-10 h-10 text-slate-950" />
                     </div>
+                  </div>
+
+                  {/* Fan Live Poll */}
+                  <div className="bg-slate-950 p-2.5 rounded border border-slate-850 flex flex-col gap-2">
+                    <span className="text-[8px] text-slate-500 font-mono font-bold uppercase tracking-wider block">Live Stadium Poll</span>
+                    <p className="text-[10px] text-slate-300 font-bold">Who is the Player of the Match?</p>
+                    {pollVoted ? (
+                      <div className="text-center p-2 bg-emerald-950/40 border border-emerald-900 rounded font-mono text-[9px] text-emerald-400">
+                        Thanks for voting for {pollVoted}!
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => setPollVoted('Virat')} 
+                          className="flex-1 py-1 bg-cyan-900 hover:bg-cyan-800 rounded text-[9px] text-cyan-100"
+                        >
+                          Virat K.
+                        </button>
+                        <button 
+                          onClick={() => setPollVoted('Bumrah')} 
+                          className="flex-1 py-1 bg-cyan-900 hover:bg-cyan-800 rounded text-[9px] text-cyan-100"
+                        >
+                          Jasprit B.
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                 </div>

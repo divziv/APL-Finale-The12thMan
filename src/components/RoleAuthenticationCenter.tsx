@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { UserRole, TurnstileGate, CommandLog } from '../types';
 import { Shield, ShieldAlert, Users, Award, Eye, Key, Lock, RefreshCw, Radio, Check, Trophy, Heart, Coins, ArrowRight, Sparkles, Coffee } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 interface RoleAuthenticationCenterProps {
   activeRole: UserRole;
@@ -50,6 +51,7 @@ export default function RoleAuthenticationCenter({
     volunteer: 'vol100',
     manager: 'team111',
     sponsor: 'brand999',
+    fan: 'fan123',
   };
 
   const handleRoleSelection = (role: UserRole) => {
@@ -194,6 +196,19 @@ export default function RoleAuthenticationCenter({
               </div>
               <span className="text-xs font-bold text-white mt-1 font-mono uppercase">Brand Sponsor</span>
               <span className="text-[9px] text-slate-500 font-mono">ADS placements ROI</span>
+            </button>
+
+            {/* 7. Fan / Audience */}
+            <button
+              onClick={() => handleRoleSelection('fan')}
+              className={`p-3 rounded-lg border text-left flex flex-col gap-1 cursor-pointer transition-all col-span-2 ${activeRole === 'fan' ? 'bg-cyan-950 border-cyan-500' : 'bg-slate-950 border-slate-850 hover:border-slate-800'}`}
+            >
+              <div className="flex items-center justify-between">
+                <Heart className="w-4 h-4 text-pink-400" />
+                {activeRole === 'fan' && <Check className="w-3.5 h-3.5 text-pink-400 bg-pink-955 rounded-full p-0.5" />}
+              </div>
+              <span className="text-xs font-bold text-white mt-1 font-mono uppercase">Fan / Audience</span>
+              <span className="text-[9px] text-slate-500 font-mono">Verified Alerts & Requests</span>
             </button>
           </div>
 
@@ -488,6 +503,56 @@ export default function RoleAuthenticationCenter({
 
                     <div className="bg-slate-900 border border-slate-850 p-2 rounded text-[10px] text-slate-400 leading-normal font-sans">
                       🎯 Brand <b>{sponsorBrand}</b> is currently locked as primary partner across <b>{activeStadiumName.toUpperCase()}</b> boundary ledboards.
+                    </div>
+                  </div>
+                )}
+
+                {/* G. WORKBOARD FOR ROLE: FAN / AUDIENCE */}
+                {activeRole === 'fan' && (
+                  <div className="flex flex-col gap-3 font-mono text-xs animate-fadeIn">
+                    <p className="text-[11px] text-slate-450 leading-relaxed font-sans">
+                      Raise a verified alert to reach out to the nearest security room.
+                    </p>
+
+                    <div className="bg-slate-900 p-3 rounded border border-slate-850 flex flex-col gap-2 items-center">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block border-b border-slate-800 pb-1 w-full text-center">Verify Identity First</span>
+                      <p className="text-[9.5px] text-slate-400 text-center mb-2">You must authenticate via Google to access emergency fan dispatch features to prevent spam.</p>
+                      
+                      <div className="scale-90">
+                        <GoogleLogin
+                          onSuccess={credentialResponse => {
+                            console.log('Fan Auth Success:', credentialResponse);
+                            // Set local state to unlocked for this role or proceed with action
+                            setIsLocked(false);
+                            onAddLog({
+                              type: 'info',
+                              source: 'SYSTEM',
+                              message: 'Fan authenticated securely via Google OAuth.',
+                              resolved: true,
+                            });
+                          }}
+                          onError={() => {
+                            console.log('Login Failed');
+                          }}
+                        />
+                      </div>
+
+                      {!isLocked && (
+                        <button
+                          onClick={() => {
+                            onAddLog({
+                              type: 'critical',
+                              source: 'SECURITY',
+                              message: `[FAN_ALERT] Verified user raised an incident alarm from the stands. Dispatching nearest steward to location.`,
+                              resolved: false,
+                            });
+                          }}
+                          className="py-2.5 px-4 bg-rose-600 hover:bg-rose-500 text-white font-extrabold rounded mt-2 transition-colors cursor-pointer text-center flex items-center justify-center gap-1.5 uppercase tracking-wide shadow-lg shadow-rose-900/50 w-full"
+                        >
+                          <ShieldAlert className="w-4 h-4" />
+                          <span>Raise Verified Alert</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

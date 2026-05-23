@@ -191,7 +191,7 @@ export default function AgenticActionConsole({
             <Bot className="w-5 h-5 text-cyan-400 shrink-0" />
             <div>
               <h2 className="text-sm font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
-                <span>Dynamic Operations Advisor</span>
+                <span>The Umpire (The Orchestrator Agent)</span>
                 <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
               </h2>
               <p className="text-xs text-slate-500 font-mono">ENGINE: ROUTING_CONTROLLER_V4</p>

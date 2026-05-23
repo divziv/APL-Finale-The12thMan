@@ -3,7 +3,7 @@
  * @description Interactive SVG-based Stadium Blueprint displaying crowd densities, checkpoints, and incident zones.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { TurnstileGate, TriageCase } from '../types';
 import { MapPin, AlertTriangle, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
@@ -41,6 +41,9 @@ export default function StadiumControlMap({
       default: return { x: 250, y: 250, labelPos: 'top' };
     }
   };
+
+  const [isPulsePaused, setIsPulsePaused] = useState(false);
+  const selectedGate = gates.find(g => g.id === selectedGateId);
 
   /**
    * Translates status into premium visual indicator rings.
@@ -232,7 +235,7 @@ export default function StadiumControlMap({
                   cx={coords.x}
                   cy={coords.y}
                   style={{ '--impact-r': `${radiusPx}px` } as React.CSSProperties}
-                  className={pulseClass}
+                  className={`${pulseClass} ${isPulsePaused ? '[animation-play-state:paused]' : ''}`}
                   fill="none"
                   stroke={color}
                   strokeWidth="2.5"
@@ -326,8 +329,12 @@ export default function StadiumControlMap({
                   fill="#020617"
                   stroke={isSelected ? "#38bdf8" : "#475569"}
                   strokeWidth="2.5"
-                  className="transition-all duration-300"
+                  className={`transition-all duration-300 ${isSelected ? 'animate-pulse' : ''}`}
                 />
+
+                <foreignObject x={coords.x - 10} y={coords.y - 30} width="20" height="20">
+                  <MapPin className={`w-5 h-5 ${isSelected ? 'text-cyan-400' : 'text-slate-500'}`} />
+                </foreignObject>
 
                 {/* Gate status indicator dot */}
                 <circle
@@ -376,6 +383,28 @@ export default function StadiumControlMap({
           <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-rose-950/95 border border-rose-500 text-rose-300 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs font-semibold animate-bounce tracking-wide">
             <ShieldAlert className="w-4 h-4 text-rose-400 animate-pulse" />
             <span>AI CORE DETECTED ZONE SURGE IN Sector C/Gate 4!</span>
+            <button 
+              onClick={() => setIsPulsePaused(!isPulsePaused)}
+              className="ml-2 px-2 py-0.5 bg-rose-900 border border-rose-700 rounded text-[10px] hover:bg-rose-800"
+            >
+              {isPulsePaused ? '▶ Play' : '⏸ Pause'}
+            </button>
+          </div>
+        )}
+
+        {selectedGate && (
+          <div className="absolute top-3 right-3 bg-slate-900 border border-cyan-800 p-3 rounded-lg shadow-xl text-xs font-mono w-[200px] z-10 animate-fadeIn">
+            <h4 className="text-cyan-400 font-bold mb-1 border-b border-cyan-900 pb-1 flex items-center gap-1">
+              <MapPin className="w-3 h-3" />
+              Zone Info: {selectedGate.id.toUpperCase()}
+            </h4>
+            <div className="flex flex-col gap-1 text-slate-300 mt-2">
+              <p>Capacity: <span className="font-bold text-white">{selectedGate.occupancy} / {selectedGate.capacity}</span></p>
+              <p>Flow Rate: <span className="font-bold text-amber-400">{selectedGate.flowRate}/min</span></p>
+              <p className="mt-1 border-t border-slate-800 pt-1 text-[10px]">
+                Impact Radius: <span className="text-emerald-400 font-bold">{Math.round((selectedGate.occupancy / selectedGate.capacity) * 100)}m</span>
+              </p>
+            </div>
           </div>
         )}
       </div>

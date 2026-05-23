@@ -72,46 +72,18 @@ export default function StadiumCCTV({ cameras, onToggleHighlight, activeThreatId
           {/* Live CCTV Rendering Simulation inside SVG/Canvas bounds */}
           <div className="relative flex-1 w-full bg-slate-950 flex items-center justify-center overflow-hidden">
             
-            {/* Draw a grid-layout resembling stadium structure with camera indicators */}
-            <svg viewBox="0 0 400 225" className="w-full h-full text-slate-800 opacity-60">
-              <line x1="0" y1="112" x2="400" y2="112" stroke="#1e293b" strokeWidth="0.5" strokeDasharray="4 4" />
-              <line x1="200" y1="0" x2="200" y2="225" stroke="#1e293b" strokeWidth="0.5" strokeDasharray="4 4" />
-              <circle cx="200" cy="112" r="80" fill="none" stroke="#334155" strokeWidth="1" />
-              <circle cx="200" cy="112" r="30" fill="none" stroke="#1e293b" strokeWidth="1" />
-
-              {/* Dynamic Crowd Points (simulate head tracking dots) */}
-              {Array.from({ length: Math.min(selectedCam.peopleCount / 2, 45) }).map((_, i) => {
-                const angle = (i * 137.5) * (Math.PI / 180);
-                const r = 10 + Math.sqrt(i) * 11;
-                const x = 200 + r * Math.cos(angle);
-                const y = 112 + r * Math.sin(angle);
-                
-                // If threat active, highlight central dots
-                const isPartiallyCongested = selectedCam.status === 'alert' || selectedCam.id === activeThreatId;
-                const color = isPartiallyCongested && r > 25 && r < 75 ? '#ef4444' : '#10b981';
-
-                return (
-                  <g key={i}>
-                    {/* Glowing coordinate point */}
-                    <circle cx={x} cy={y} r="2.5" fill={color} fillOpacity="0.8" />
-                    {/* Bounding boxes around localized sub-surges */}
-                    {isPartiallyCongested && i % 6 === 0 && (
-                      <rect
-                        x={x - 8}
-                        y={y - 8}
-                        width="16"
-                        height="16"
-                        fill="none"
-                        stroke="#ef4444"
-                        strokeWidth="1"
-                        strokeDasharray="2 1"
-                        className="animate-pulse"
-                      />
-                    )}
-                  </g>
-                );
-              })}
-            </svg>
+            <img 
+              src={selectedCamId === 'cam1' 
+                ? '/@fs/C:/Users/DIVYA/.gemini/antigravity/brain/3ff01cdd-2c00-4a20-8896-c23270291333/cctv_turnstile_bottleneck_1779520188149.png' 
+                : '/@fs/C:/Users/DIVYA/.gemini/antigravity/brain/3ff01cdd-2c00-4a20-8896-c23270291333/cctv_concourse_density_1779520244404.png'
+              }
+              onError={(e) => {
+                // Fallback if @fs fails
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1510006851064-e6056706f1d5?q=80&w=1000';
+              }}
+              className="w-full h-full object-cover opacity-80"
+              alt="CCTV Feed"
+            />
 
             {/* Simulated Live Overlay Textures */}
             <div className="absolute top-3 left-4 text-[10px] font-mono text-slate-300 drop-shadow flex flex-col gap-0.5 z-20">

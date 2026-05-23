@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { StadiumData } from '../types';
-import { Trophy, Compass, MapPin, Users, Flame, ChevronRight, Activity, TrendingUp } from 'lucide-react';
+import { Trophy, Compass, MapPin, Users, Flame, ChevronRight, Activity, TrendingUp, Volume2 } from 'lucide-react';
 
 interface StadiumMatchCenterProps {
   stadiums: StadiumData[];
@@ -68,8 +68,21 @@ export default function StadiumMatchCenter({
               <option key={s.id} value={s.id}>
                 🏏 {s.name} ({s.location.split(',')[0]})
               </option>
-            ))}
           </select>
+          <button
+            onClick={() => {
+              if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const msg = new SpeechSynthesisUtterance(`Welcome to ${activeStadium.name}. We are currently at ${fillPercentage} percent capacity. The match is ${match.battingTeam} versus ${match.bowlingTeam}. Score is ${match.score}.`);
+                msg.rate = 0.95;
+                window.speechSynthesis.speak(msg);
+              }
+            }}
+            className="bg-cyan-950 border border-cyan-800 rounded p-1.5 text-cyan-400 hover:bg-cyan-900 transition-colors cursor-pointer"
+            title="Read Stadium Info Aloud"
+          >
+            <Volume2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

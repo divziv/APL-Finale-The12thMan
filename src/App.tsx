@@ -29,7 +29,11 @@ import PlatformMobileSimulator from './components/PlatformMobileSimulator';
 import StadiumTicketingAndSwags from './components/StadiumTicketingAndSwags';
 import RoleAuthenticationCenter from './components/RoleAuthenticationCenter';
 import StadiumTriageOperations from './components/StadiumTriageOperations';
-
+import { useSimulationEngine } from './mock-engine/SimulationEngine';
+import Stadium3DView from './features/stadium/Stadium3DView';
+import SmartRouter from './features/routing/SmartRouter';
+import CrowdTrends from './features/analytics/CrowdTrends';
+import { iplThemes } from './themes/iplThemes';
 
 import {
   Clock,
@@ -53,6 +57,8 @@ import {
 } from 'lucide-react';
 
 export default function App() {
+  useSimulationEngine();
+  
   // 1. Core tactical states
   const [activeStadiumId, setActiveStadiumId] = useState<string>('stadium_modi');
   const [gates, setGates] = useState<TurnstileGate[]>(STADIUMS_PRESETS[0].gates);
@@ -167,7 +173,7 @@ export default function App() {
 
   // 6. Global Broadcast announcement ticker (pa address banner)
   const [activeBroadcastText, setActiveBroadcastText] = useState<string | null>(
-    '🚨 WELCOME TO THE STADIUM NODE: ALL SPECTATOR CHECKPOINTS ARE REPORTING OPTIMAL TELEMETRY'
+    '🚨 WELCOME TO THE STADIUM NODE: ALL SPECTATOR CHECKPOINTS ARE REPORTING OPTIMAL TELEMETRY. EMERGENCY CONTACTS IN INDIA: POLICE (100), FIRE (101), AMBULANCE (102).'
   );
 
   // 7. DEI & Accessibility states (saved to localStorage for persistent configurations)
@@ -285,6 +291,25 @@ export default function App() {
 
           speakText(`Autopilot system engaged congestion safety rule. Re routing incoming queue from slow zone ${slowGate.id.toUpperCase()} to alternate gate ${alternativeGate.id.toUpperCase()}.`);
         }
+      }
+
+      // Explicit Density Check
+      const highDensityGate = gates.find(g => g.occupancy > g.capacity * 0.95 && g.status !== 'closed');
+      if (highDensityGate) {
+        const stamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        // Prevent spamming the same log by checking if we recently logged it
+        setLogs(prev => {
+          if (prev.some(l => l.message.includes(`HIGH DENSITY ALERT at ${highDensityGate.id.toUpperCase()}`) && !l.resolved)) return prev;
+          speakText(`CRITICAL ALERT: Crowd density at ${highDensityGate.name} is approaching maximum capacity. Please dispatch groundsmaster immediately.`);
+          return [{
+            id: `density-alert-${Date.now()}`,
+            timestamp: stamp.substring(0, 5),
+            type: 'critical',
+            source: 'SYSTEM',
+            message: `[HIGH DENSITY ALERT at ${highDensityGate.id.toUpperCase()}] Sector is at ${Math.round((highDensityGate.occupancy / highDensityGate.capacity) * 100)}% capacity. Immediate containment action required!`,
+            resolved: false,
+          }, ...prev];
+        });
       }
     }, 5000);
 
@@ -853,11 +878,14 @@ export default function App() {
     textSize === 'large' ? 'text-[1.1rem] leading-relaxed' :
     textSize === 'extra-large' ? 'text-[1.25rem] leading-loose' : 'text-sm';
 
+  const activeTheme = iplThemes[activeStadium.match.battingTeam] || iplThemes.RCB;
+
   return (
     <div 
-      className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950 p-4 md:p-6" 
+      className="min-h-screen text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950 p-4 md:p-6 transition-colors duration-1000" 
       id="crowdflow-app-root"
       style={{ 
+        backgroundColor: activeTheme.secondary,
         fontSize: textSize === 'large' ? '108%' : textSize === 'extra-large' ? '120%' : '100%',
         filter: colorBlindMode !== 'normal' ? `url(#${colorBlindMode}-filter)` : undefined
       }}
@@ -929,7 +957,7 @@ export default function App() {
           <Megaphone className="w-4.5 h-4.5 text-amber-400 shrink-0 mr-3 animate-bounce" />
           <div className="flex-1 overflow-hidden relative h-5">
             <div className="absolute whitespace-nowrap animate-[marquee_25s_linear_infinite] hover:pause text-xs font-mono font-extrabold uppercase tracking-wide">
-              {activeBroadcastText} • {activeBroadcastText} • {activeBroadcastText}
+              {activeBroadcastText}
             </div>
           </div>
         </div>
@@ -1074,12 +1102,15 @@ export default function App() {
               </div>
 
               {/* CCTV Video feed and Focus statistics card */}
-              <div className="xl:col-span-1 flex flex-col h-full">
+              <div className="xl:col-span-1 flex flex-col h-full gap-6">
                 <StadiumCCTV
                   cameras={cameras}
                   onToggleHighlight={handleCctvHighlightToggle}
                   activeThreatId={activeThreatId}
                 />
+                
+                <SmartRouter />
+                <CrowdTrends />
 
                 {selectedGateId && (
                   <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl mt-6 font-mono text-xs flex flex-col gap-2.5">
@@ -1179,6 +1210,9 @@ export default function App() {
         {/* TAB 3: Interactive Crowd Flow Particle particles simulator */}
         {activeTab === 'simulation' && (
           <div className="flex flex-col gap-6" id="simulation-view">
+            <h2 className="text-xl font-bold text-cyan-400 border-b border-slate-800 pb-2">Stadium 3D Digital Twin</h2>
+            <Stadium3DView />
+            
             {/* Provide happy path stepping so judges can see dynamic changes in flow live */}
             <HappyPathController
               scenarios={PRESENTATION_SCENARIOS}
