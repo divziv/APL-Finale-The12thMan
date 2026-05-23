@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# Python
+venv/
+ai-service/venv/
+__pycache__/
+
+.env
