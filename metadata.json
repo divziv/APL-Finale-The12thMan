@@ -1,0 +1,6 @@
+{
+  "name": "Crowdflow Stadium Command",
+  "description": "An integrated real-time stadium crowd routing, ticket checkpoints, and automated emergency response command system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/* CRT monitor and radar scanner layout utilities */
+@keyframes scanning {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
+}
+
+.animate-scanning {
+  animation: scanning 6s linear infinite;
+}
+
+.bg-scanlines {
+  background: linear-gradient(
+    rgba(18, 24, 38, 0) 50%, 
+    rgba(0, 0, 0, 0.12) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 3px, 3px 100%;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+.animate-[dash_10s_linear_infinite] {
+  animation: dash 10s linear infinite;
+}
+
+.animate-[dash_6s_linear_infinite] {
+  animation: dash 6s linear infinite;
+}
+
